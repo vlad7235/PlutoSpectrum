@@ -30,7 +30,7 @@ sudo dnf install libiio* libad9361*
 ```
 
 Here is and example of the waterfall plot produced from the output FITS file,
-the monitorng was done from 500MHz (left) to 6GHz (right) during 900 seconds (in up direction):
+the monitorng was done from 500MHz (left) to 6GHz (right) during 900 seconds (in up ward direction):
 
 ![alt text](https://github.com/vlad7235/PlutoSpectrum/blob/master/figures/ds9.jpeg "Waterfall plot")
 
