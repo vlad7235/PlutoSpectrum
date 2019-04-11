@@ -47,6 +47,7 @@ Pluto_Param get_options(int argc, char *argv[])//, Pluto_Param *plp)
 		printf("\t  \tin the range 1-6GHz and with 5 MSPS bitrate.\n");
 		printf("\t-s\tScan start frequency in Hz, from 70 MHz to 6 GHz (the default is 1.0e9 Hz).\n");
 		printf("\t-e\tScan end frequency in Hz from 70 MHz to 6 GHz (the default is 3.0e9 Hz).\n");
+		printf("\t-g\tA hardware gain in dB (the default is 71 dB).\n");
 		printf("\t-i\tShows information about the device, e.g. URI.\n");
 		exit(0);
             case 'g':  
