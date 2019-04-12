@@ -24,9 +24,9 @@ root@laptop ./PlutoScan -h
 At each frequency the programm reads 4096 uncalibrated raw I and Q samples (2 x uint16_t), squares them and 
 calculates a sum, which is proportional to the total power per frequency channel. 
 
-The programm was tested in Fedora 27 and 29, it requires libiio and libad9361 installed, e.g.
+The programm was tested in Fedora 27 and 29, it requires libiio, libad9361 and cfitsio installed, e.g.
 ```
-sudo dnf install libiio* libad9361*
+sudo dnf install libiio* libad9361* cfitsio*
 ```
 
 Here is and example of the waterfall plot produced from the output FITS file,

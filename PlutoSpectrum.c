@@ -19,7 +19,7 @@ int main (int argc, char *argv[])
 	ssize_t nctx;
 	const char *buf, *uri;	
 	char attrib[64];
-	double hwgain;
+	double hwgain, rssi;
 
 	long int rxbbrate, lomin, lomax;
 	struct timespec start, end;
@@ -34,7 +34,6 @@ int main (int argc, char *argv[])
 
 	Pluto_Param plp;
 
-	printf("Calling get_options\n");
 	plp = get_options(argc, argv);
 /* Find USB URI for ADALM-Pluto */
 /* ToDo: add other non-usb contexts discovery */
@@ -74,7 +73,9 @@ int main (int argc, char *argv[])
 //	attr_num = (int) iio_channel_get_attrs_count(chn);
 //	printf("Number of the attributes is %d\n", attr_num);
 
-/* Reading hardware gain */	
+/* Setting hardware gain */
+
+	// Read hardware gain	
 	buf = iio_channel_get_attr(chn, 3);
 //	iio_channel_attr_read(chn, buf, attrib, 64);
 	iio_channel_attr_read_double(chn, buf, &hwgain);
@@ -82,21 +83,26 @@ int main (int argc, char *argv[])
 
 	printf("Setting %s to %f dB...\n", buf, plp.gain);
 
+	// Read gain control type
 	buf = iio_channel_get_attr(chn, 0);
 	iio_channel_attr_read(chn, buf, attrib, 64);
 //	printf("%s is %s\n", buf, attrib);
 
+	// Set gain control type to manual
 	strcpy(attrib, "manual");
 	status = iio_channel_attr_write(chn, buf, attrib);
 	buf = iio_channel_get_attr(chn, 0);
 	iio_channel_attr_read(chn, buf, attrib, 64);
 	printf("%s is %s, status = %d\n", buf, attrib, status);
 
-		// RSSI
+	// Read RSSI at start
 	buf = iio_channel_get_attr(chn, 1);
 	iio_channel_attr_read(chn, buf, attrib, 64);
-	printf("%s is %s\n", buf, attrib);
+	iio_channel_attr_read_double(chn, buf, &rssi);
+	printf("Starting %s is %s / %e dB\n", buf, attrib, rssi);
+	fk.rssi_start = (float)rssi;
 
+	// Set hardware gain according to the -g option
 	hwgain = (double)(plp.gain);
 //	strcpy(attrib, "20.000000 dB");	
 	
@@ -106,6 +112,7 @@ int main (int argc, char *argv[])
 	iio_channel_attr_read(chn, buf, attrib, 64);
 	iio_channel_attr_read_double(chn, buf, &hwgain);
 	printf("%s is %s / %e dB, status = %d\n", buf, attrib, hwgain, status);
+	fk.gain = (float)hwgain;
 
 //	iio_context_destroy(ctx);
 //	exit(0);
@@ -223,6 +230,15 @@ struct  fits_keywords
 	status = datetime_populate(fk.dateend, fk.timeend, "Finishing a wideband scan: ");
 
 	fk.cdelt2 = (float)elapsed_sec/(float)naxes[1]; // Actual one swipe time, sec
+	fk.length = (float)elapsed_sec; // Total scan time, sec
+
+	// Read RSSI at the end
+	buf = iio_channel_get_attr(chn, 1);
+	iio_channel_attr_read(chn, buf, attrib, 64);
+	iio_channel_attr_read_double(chn, buf, &rssi);
+	printf("Final %s is %s / %e dB\n", buf, attrib, rssi);
+	fk.rssi_end = (float)rssi;
+
 
 /************************************************************/ 
 	iio_context_destroy(ctx);

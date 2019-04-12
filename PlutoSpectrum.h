@@ -13,7 +13,11 @@ struct  fits_keywords {
 	char *ctype1;
 	float crval2;
 	float cdelt2;
-	float crpix2;		
+	float crpix2;
+	float gain;
+	float rssi_start;
+	float rssi_end;
+	float length;		
 	char *cunit2;
 	char *ctype2;
 	char datestart[64];

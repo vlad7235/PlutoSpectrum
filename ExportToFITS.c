@@ -27,15 +27,17 @@ int export_image_to_fits_c(float *data, long *naxes, char * filename, struct fit
 	/* Write the array of integers to the image */
 	fits_write_img(fptr, TFLOAT, fpixel, nelements, data, &status);
 	/* Write keywords */
-	fits_write_key(fptr, TFLOAT, "CRVAL1", &fk.crval1, "[MHz] frequency value at reference point", &status);
-	fits_write_key(fptr, TFLOAT, "CDELT1", &fk.cdelt1, "[MHz] frequency increment at reference point", &status);
-	fits_write_key(fptr, TFLOAT,  "CRPIX1",&fk.crpix1, "Pixel coordinate of reference point", &status);
+	fits_write_key(fptr, TSTRING, "BUNIT", "ADC_SCORE^2", "Units of the data", &status);
+
+	fits_write_key(fptr, TFLOAT,  "CRVAL1", &fk.crval1, "[MHz] frequency value at reference point", &status);
+	fits_write_key(fptr, TFLOAT,  "CDELT1", &fk.cdelt1, "[MHz] frequency increment at reference point", &status);
+	fits_write_key(fptr, TFLOAT,  "CRPIX1", &fk.crpix1, "Pixel coordinate of reference point", &status);
 	fits_write_key(fptr, TSTRING, "CUNIT1", fk.cunit1, "Units of frequency increment and value", &status);
 	fits_write_key(fptr, TSTRING, "CTYPE1", fk.ctype1, "Frequency (linear)", &status);
 
-	fits_write_key(fptr, TFLOAT, "CRVAL2", &fk.crval2, "[sec] time value at reference point", &status);
-	fits_write_key(fptr, TFLOAT, "CDELT2", &fk.cdelt2, "[sec] time increment at reference point", &status);
-	fits_write_key(fptr, TFLOAT,  "CRPIX2",&fk.crpix2, "Pixel coordinate of reference point", &status);
+	fits_write_key(fptr, TFLOAT,  "CRVAL2", &fk.crval2, "[sec] time value at reference point", &status);
+	fits_write_key(fptr, TFLOAT,  "CDELT2", &fk.cdelt2, "[sec] time increment at reference point", &status);
+	fits_write_key(fptr, TFLOAT,  "CRPIX2", &fk.crpix2, "Pixel coordinate of reference point", &status);
 	fits_write_key(fptr, TSTRING, "CUNIT2", fk.cunit2, "Units of time increment and value", &status);
 	fits_write_key(fptr, TSTRING, "CTYPE2", fk.ctype2, "Time (linear)", &status);
 
@@ -43,8 +45,13 @@ int export_image_to_fits_c(float *data, long *naxes, char * filename, struct fit
 	fits_write_key(fptr, TSTRING, "TIME-OBS", fk.timestart, "time of observation start (hh:mm:ss) ", &status);
 	fits_write_key(fptr, TSTRING, "DATE-END", fk.dateend, "date of observation end (dd/mm/yy) ", &status);
 	fits_write_key(fptr, TSTRING, "TIME-END", fk.timeend, "time of observation end (hh:mm:ss) ", &status);
+	fits_write_key(fptr, TFLOAT,  "LENGTH",   &fk.length, "[sec] total scan length from start to end", &status);
 
 	fits_write_key(fptr, TSTRING, "INSTRUME", fk.instrument, "instrument name ", &status);
+
+	fits_write_key(fptr, TFLOAT,  "HWGAIN",   &fk.gain, "[dB] hardware gain parameter", &status);
+	fits_write_key(fptr, TFLOAT,  "RSSI",     &fk.rssi_start, "[dB] RSSI at start", &status);
+	fits_write_key(fptr, TFLOAT,  "RSSI-END", &fk.rssi_end, "[dB] RSSI at the end", &status);
 
 	fits_close_file(fptr, &status);            /* close the file */
 	fits_report_error(stderr, status);  /* print out any error messages */
