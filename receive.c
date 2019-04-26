@@ -59,16 +59,17 @@ int receive_swipe(struct iio_context *ctx, struct iio_device *phy, long int lomi
 	struct iio_device *dev;
 	struct iio_channel *rx0_i, *rx0_q;
 	struct iio_buffer *rxbuf;
+        struct iio_channel * 	chn;
 	
 	long int rxlo_tmp = lomin;
-
+        int status;
 	float signal_sum_tmp;
 
 	struct timespec start, end;
      	double start_sec, end_sec, elapsed_sec;
  
 	dev = iio_context_find_device(ctx, "cf-ad9361-lpc");
- 
+ 	chn = iio_device_find_channel(phy, "altvoltage0", true);
 	rx0_i = iio_device_find_channel(dev, "voltage0", 0);
 	rx0_q = iio_device_find_channel(dev, "voltage1", 0);
  
@@ -102,9 +103,11 @@ int receive_swipe(struct iio_context *ctx, struct iio_device *phy, long int lomi
 		p_inc = iio_buffer_step(rxbuf);
 		p_end = iio_buffer_end(rxbuf);
 
-		iio_channel_attr_write_longlong(
-		iio_device_find_channel(phy, "altvoltage0", true),
-		"frequency", rxlo_tmp); /* RX LO frequency rxlo_tmp, Hz */
+		status = -1;
+		while(status < 0) { 
+			status = iio_channel_attr_write_longlong(chn,
+		//iio_device_find_channel(phy, "altvoltage0", true),
+			"frequency", rxlo_tmp);} /* RX LO frequency rxlo_tmp, Hz */
 
  		signal_sum_tmp = 0.0;
 		for (p_dat = iio_buffer_first(rxbuf, rx0_i); p_dat < p_end; p_dat += p_inc, t_dat += p_inc) {

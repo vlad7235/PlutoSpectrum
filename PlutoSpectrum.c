@@ -80,20 +80,48 @@ int main (int argc, char *argv[])
 //	iio_channel_attr_read(chn, buf, attrib, 64);
 	iio_channel_attr_read_double(chn, buf, &hwgain);
 	printf("%s is %e dB\n", buf, hwgain);
+	
 
-	printf("Setting %s to %f dB...\n", buf, plp.gain);
+// If plp.gain <> hwgain, set plp.gain
+
+	if(abs(plp.gain - hwgain) >= 1.0e-6 ){				
+		printf("Setting %s to %f dB...\n", buf, plp.gain);
 
 	// Read gain control type
-	buf = iio_channel_get_attr(chn, 0);
-	iio_channel_attr_read(chn, buf, attrib, 64);
+		buf = iio_channel_get_attr(chn, 0);
+		iio_channel_attr_read(chn, buf, attrib, 64);
 //	printf("%s is %s\n", buf, attrib);
 
 	// Set gain control type to manual
-	strcpy(attrib, "manual");
-	status = iio_channel_attr_write(chn, buf, attrib);
-	buf = iio_channel_get_attr(chn, 0);
-	iio_channel_attr_read(chn, buf, attrib, 64);
-	printf("%s is %s, status = %d\n", buf, attrib, status);
+		strcpy(attrib, "manual");
+		status = iio_channel_attr_write(chn, buf, attrib);
+		if(!status){
+			printf("ERROR: can not set gain_control_mode attribute to manual\n");
+			return -1;
+		}
+		buf = iio_channel_get_attr(chn, 0);
+		iio_channel_attr_read(chn, buf, attrib, 64);
+		printf("%s is %s, status = %d\n", buf, attrib, status);
+
+	// Set hardware gain according to the -g option
+		hwgain = (double)(plp.gain);
+//	strcpy(attrib, "20.000000 dB");	
+	
+		buf = iio_channel_get_attr(chn, 3);
+//	status = iio_channel_attr_write(chn, buf, attrib);
+		status = iio_channel_attr_write_double(chn, buf, hwgain);
+		if(!status){
+			printf("ERROR: can not set hardware attribute to %f dB\n", hwgain);
+			return -1;
+		}
+		iio_channel_attr_read(chn, buf, attrib, 64);
+		iio_channel_attr_read_double(chn, buf, &hwgain);
+		printf("%s is %s / %e dB, status = %d\n", buf, attrib, hwgain, status);
+
+	}
+	fk.gain = (float)hwgain;
+
+
 
 	// Read RSSI at start
 	buf = iio_channel_get_attr(chn, 1);
@@ -102,17 +130,6 @@ int main (int argc, char *argv[])
 	printf("Starting %s is %s / %e dB\n", buf, attrib, rssi);
 	fk.rssi_start = (float)rssi;
 
-	// Set hardware gain according to the -g option
-	hwgain = (double)(plp.gain);
-//	strcpy(attrib, "20.000000 dB");	
-	
-	buf = iio_channel_get_attr(chn, 3);
-//	status = iio_channel_attr_write(chn, buf, attrib);
-	status = iio_channel_attr_write_double(chn, buf, hwgain);
-	iio_channel_attr_read(chn, buf, attrib, 64);
-	iio_channel_attr_read_double(chn, buf, &hwgain);
-	printf("%s is %s / %e dB, status = %d\n", buf, attrib, hwgain, status);
-	fk.gain = (float)hwgain;
 
 //	iio_context_destroy(ctx);
 //	exit(0);
